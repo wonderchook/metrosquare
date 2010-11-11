@@ -61,7 +61,7 @@ venue_responses = get_venue_info(venues)
 parse_locations(venue_responses)
 #url = URI.parse('http://geocommons.com/overlays/' + @overlayid )
 #req = Net::HTTP::Get.new url.path
-##req.basic_auth 'kate', 'chicken1'
+##req.basic_auth @username, @password
 #res = Net::HTTP.new(url.host, url.port).start { |http| http.request(req) }
 
 

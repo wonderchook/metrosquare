@@ -10,13 +10,20 @@ require 'uri'
 require 'csv'
 
 
-def read_config
+def metro_it
 	config = YAML.load_file("config.yaml")
-	@username = config["config"]["username"]
-	@password = config["config"]["password"]
-	@inputfile = config["config"]["inputfilename"]
-	@outputfile = config["config"]["filename"]
-	@overlayid = config["config"]["overlayid"]
+	username = config["config"]["username"]
+	password = config["config"]["password"]
+	inputfile = config["config"]["inputfilename"]
+	outputfile = config["config"]["filename"]
+	overlayid = config["config"]["overlayid"]
+	venues = parse_venues(inputfile)
+  venue_responses = get_venue_info(venues)
+  parse_locations(venue_responses,outputfile)
+  url = URI.parse('http://geocommons.com/overlays/' + overlayid )
+  req = Net::HTTP::Get.new url.path
+  req.basic_auth username, password
+  res = Net::HTTP.new(url.host, url.port).start { |http| http.request(req) }
 end
 
 def parse_venues(path)
@@ -38,8 +45,8 @@ end
 
 
 
-def parse_locations(venues)
-  outputfile = File.open(@outputfile,"wb")
+def parse_locations(venues,outputfile)
+  outputfile = File.open(outputfile,"wb")
     CSV::Writer.generate(outputfile) do |csv|  
    csv << ["id","name", "latitude","longitude", "peoplehere","checkins"]
     venues.each{ |venue|
@@ -54,15 +61,9 @@ def parse_locations(venues)
 end
 
 
+metro_it
 
 
-venues = parse_venues(@inputfile)
-venue_responses = get_venue_info(venues)
-parse_locations(venue_responses)
-#url = URI.parse('http://geocommons.com/overlays/' + @overlayid )
-#req = Net::HTTP::Get.new url.path
-##req.basic_auth @username, @password
-#res = Net::HTTP.new(url.host, url.port).start { |http| http.request(req) }
 
 
 
